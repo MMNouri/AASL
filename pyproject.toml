@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aasl"
+version = "0.1.1"
+description = "AI-Augmented Supervised Learning: theory-led LLM coding of text with calibration, residual-based discovery and held-out confirmation"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["pyyaml>=6.0"]
+
+[project.optional-dependencies]
+openai = ["openai>=1.40"]
+anthropic = ["anthropic>=0.30"]
+parquet = ["pandas>=1.5", "pyarrow>=12"]
+dev = ["pytest>=7"]
+
+[project.scripts]
+aasl = "aasl.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,63 @@
+# Seed schema S for corporate sustainability cooperation.
+#
+# ILLUSTRATIVE ONLY. These seeds show the format and one way to separate the
+# category axis (what partners do together) from attributes (governance form,
+# partner type, ...). Replace them with seeds derived from the theory your
+# paper builds on, and put the reference for each seed in `source`. No
+# citations are filled in here on purpose.
+domain:
+  name: Inter-organisational cooperation
+  definition: >-
+    The firm acts together with at least one external organisation toward a shared
+    goal, through joint activity, shared resources or a formal agreement.
+  include:
+    - joint activity with a named or clearly described external organisation
+    - a formal agreement (contract, memorandum of understanding, joint venture)
+  exclude:
+    - actions the firm takes alone
+    - donations, sponsorship or grants with no joint activity described
+    - generic statements about engaging stakeholders
+    - programmes for the firm's own employees
+categories:
+  - name: Knowledge exchange
+    definition: Partners share expertise, information, data or training with each other.
+    origin: theory
+    source: "TODO: theory reference"
+    # Optional: subcategories refine a category (the coder gives one, or none if none fits).
+    subcategories:
+      - name: Training
+        definition: Partners teach or train each other.
+      - name: Practice exchange
+        definition: Partners swap existing practices, data or know-how.
+  - name: Resource pooling
+    definition: Partners combine or share money, assets, facilities or capacity that already exist.
+    origin: theory
+    source: "TODO: theory reference"
+  - name: Joint development
+    definition: Partners create a new product, process, technology or solution together.
+    origin: theory
+    source: "TODO: theory reference"
+  - name: Joint promotion
+    definition: Partners promote a product, cause or message together.
+    origin: theory
+    source: "TODO: theory reference"
+attributes:
+  - name: governance_form
+    description: Formal basis of the cooperation as stated in the unit
+    kind: single
+    options: [Equity joint venture, Formal non-equity agreement]
+  - name: partner_type
+    description: Type of each external partner
+    kind: multi
+    options: [Business, Supplier, NGO, Government, Research institution,
+              International organisation, Industry association, Local community]
+  - name: partner_names
+    description: Names of the external partners, as written
+    kind: text
+  - name: configuration
+    description: Number of parties
+    kind: single
+    options: [Bilateral, Multilateral]
+  - name: duration
+    description: Start date or duration of the cooperation, as written
+    kind: text

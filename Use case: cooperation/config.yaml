@@ -1,0 +1,42 @@
+# Run configuration. Paths are relative to this file.
+run_dir: ../../runs/cooperation
+
+data:
+  path: units_sample.csv          # your units file: csv, jsonl or parquet
+  id_column: id
+  text_column: text
+  meta_columns: [firm, sector, region, year]
+
+schema: seeds.yaml
+
+model:
+  provider: openai                # openai 
+  name: gpt-4o-2024-08-06         # pin a dated snapshot; check your provider's docs
+  temperature: 0                  # use null for models that do not accept a temperature
+  seed: 7                         # (openai only)
+
+settings:
+  tau: 0.9                        # precision and recall threshold, per category
+  min_support: 20                 # human-coded units a category needs to be certified
+  gate_attributes: false          # attributes and subcategories are always reported;
+  gate_subcategories: false       # set true to make them part of the pass/fail threshold
+  min_reliability: 0.7            # Krippendorff's alpha between human coders
+  reliability_metric: alpha_nominal
+  on_low_reliability: stop
+  holdout_size: 400
+  calibration_size: 400
+  discovery_pool_size: 1000       # extra units coded to find residual units (line 8)
+  strata: [sector, region]
+  cluster: firm
+  max_per_cluster: 5
+  seed: 7
+  max_rounds: 5
+  max_calibration_iterations: 6
+  proposal_batch_size: 40
+  min_proposal_units: 2
+  max_workers: 8
+  retries: 2
+  n_boot: 1000
+
+human:
+  n_coders: 2
