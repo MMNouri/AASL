@@ -1,0 +1,159 @@
+GOLDEN EXTRACTION PROMPTS (production run)
+
+
+Text below is the exact output of the notebook's own prompt code; only the two
+placeholders are left unfilled: {description} = the initiative text, {company_name} = the reporting firm.
+Model settings in the notebook: gpt-4o; Step 1 temperature=0; Step 2 temperature=0, top_p=0.9.
+
+
+--- SYSTEM PROMPT ---
+You are an expert data annotator for corporate sustainability reports. Your task is to determine if Cooperation is involved in the initiative description. Return 'Yes' if cooperation is involved, otherwise 'No'.
+
+--- USER PROMPT (definition and examples, then the initiative) ---
+
+Definition:
+Cooperation refers to any formal or informal arrangement, partnership, collaboration, alliance, joint action, or coordinated activity between two or more parties (companies, organizations, institutions, communities, or agencies) to achieve a shared goal, exchange knowledge or resources, implement joint projects, or address mutual challenges.
+
+Cooperation includes:
+- Joint ventures, partnerships, MOUs, knowledge exchange, resource sharing, sponsorships, co-marketing, co-creation, alliances, industry consortia, or any structured joint activity.
+
+Cooperation does NOT include:
+- Purely internal activities or unilateral actions.
+- Generic stakeholder engagement without clear collaboration.
+- Donations or support alone do not count as cooperation unless there is explicit mention of partnership, joint planning, collaboration, or a formal agreement.
+- Campaigns, training, or consultations are only cooperation if there is evidence of involvement with an external entity in a joint or coordinated manner.
+- Supporting, funding, volunteering or donating to another organization is not cooperation unless there is a formal or explicit partnership, collaboration, or joint activity described.
+
+Examples:
+1. "Starting in 2012, we partnered with Gap Inc. on the P.A.C.E. pilot programme in China to upskill female workers." - Yes
+2. "In the spring of 2019, KTVK / KPHO partnered with a local grocery chain for the Spring into Summer Food Drive." - Yes
+3. "At our Palomino solar energy project, an educational agreement with Southern State Community College has been signed to provide renewable energy education." - Yes
+4. "We recognise the importance of women empowerment and have been providing opportunities to help our female employees enhance their personal skills." - No
+5. "These backpacks are delivered to local schools around the valley every Friday so that children can take them home at the end of the day." - No
+6. "At the beginning of the year, we relaunched our Springboard development programme. This programme supports women via professional and personal development." - No
+
+Your task: For each initiative description, return only 'Yes' if cooperation is present as defined above, otherwise return 'No'. 
+
+Given the following sustainability initiative description, determine if there is any cooperation involved.
+
+Return "Yes" if cooperation is involved, otherwise return "No".
+
+Initiative description:
+{description}
+
+
+====================================================================================================
+CATEGORISATION OF COOPERATIVE INITIATIVES (JSON with 9 fields)
+Each field below defines its own categories; the rules under each field are part of the prompt.
+====================================================================================================
+
+--- SYSTEM PROMPT ---
+You are an expert annotator for sustainability reports. Return only a valid JSON object in the exact format requested. No markdown, no explanations.
+
+--- USER PROMPT ---
+
+
+Given the following initiative description, extract these fields. Do NOT include the company name "{company_name}" in any of the extracted fields for partners.
+
+- partnership_structure: For each initiative, always select the cooperation structure from the following options. Carefully review the initiative description and choose the most appropriate partnership structure only from this list: 
+    - Bilateral: Cooperation between exactly two organizations or parties.
+    - Multilateral: Cooperation involving more than two organizations or parties.
+    - Global Systemic: Cooperation that addresses issues or creates impact at a global scale, often involving international actors or frameworks.
+    
+- stakeholder_structure: Assign a value to stakeholder_structure ONLY IF the initiative description clearly fits one of the following stakeholder-based formats:
+    - Multi-stakeholder Systemic: This includes initiatives that explicitly or implicitly bring together two or more distinct stakeholder types. Only assign this if the initiative explicitly or unambiguously involves at least two or more distinctly different stakeholder types (for example: at least one business plus at least one NGO, or government body, or research institution, etc.).
+    - Public-Private Partnership: Use when the initiative features collaboration between public sector entities and private businesses aimed at shared goals.
+    - Sustainable Local Engagement: Initiatives that establish networks, partnerships, or collaborations among local stakeholders—such as businesses, community groups, or NGOs—to advance sustainability within a community or locality.
+SELECTION RULE for partnership_structure and stakeholder_structure:
+    - Always assign a value to 'partnership_structure'. This column MUST NEVER be null. Choose the most appropriate structure based on the scale, level, or configuration of the cooperation. 
+    - Be especially strict with stakeholder_structure, do not over-assign labels like "Multi-stakeholder Systemic". Only assign a stakeholder-based structure when the description explicitly supports this classification beyond any doubt.
+    - For Multi-stakeholder Systemic, multiple parties of the same stakeholder type does not qualify as multi-stakeholder. The minimum for this label is two or more organizations of clearly different stakeholder categories (such as a company plus an NGO, or a company plus a government institution).
+    - Important: Do not assign Multi-stakeholder Systemic based merely on the presence of multiple organizations of the same type (e.g., two NGOs or several companies). "Multi-stakeholder Systemic" requires unambiguous participation by at least two distinctly different types of stakeholders. Assign "Multi-stakeholder Systemic" only if the initiative description provides explicit, direct, and unambiguous evidence that at least two clearly different stakeholder types are active partners or collaborators in the initiative.
+    - If no stakeholder-based format applies, return null for stakeholder_structure'.
+    - Never invent values outside the provided lists. Never return "...", "n/a", or blank. Use only the specified terms or null where applicable (for `stakeholder_structure` only).
+
+- business_partner: List all relevant business-related partners involved in the initiative. Choose any applicable types from the list below:
+    - Business Partners: A specific company or organization with which the reporting company collaborates directly; use this when the relationship is with a named, individual business entity.
+    - Business Network: A group, consortium, or network of multiple businesses or organizations, often not named individually, but acting collectively; use this when the initiative involves collaboration with a group or network of businesses rather than a single, specific partner.
+    - Suppliers: Companies or organizations that provide goods or services used in the reporting company's operations or value chain.
+    - Subsidiaries: Companies that is controlled by the reporting company, typically through majority ownership of shares.
+    - Company: The reporting company itself, as a legal and organizational entity. Select "Company" when the cooperation or partnership involves the organization as a whole and when the partnership is at the institutional or management level, not specifically involving employees as distinct partners.
+    - Association: An organized group of individuals or organizations with a common purpose or interest, typically member-based. Associations are formed by members who join together to advance shared goals, such as professional societies, industry groups, or advocacy coalitions. Associations are distinct from foundations in that they require members and are governed by their membership.
+- stakeholder_partner: List all other relevant (non-business) stakeholders involved in the initiative. Choose any applicable types from the list below:    
+    - International Institutions: Intergovernmental organizations operating across multiple countries, such as the United Nations, World Bank, or World Health Organization.
+    - Educational and Research Entities: Academic Institutions, universities, colleges, research institutes, or other organizations primarily focused on education or scientific research.
+    - Consultancies and Certification Bodies: Professional service firms or organizations that provide expert advice, assessment, or certification services.
+    - Local Communities: Groups, organizations, or representatives of the population residing in the direct area of the initiative's operations, included only if the community are active participants, partners, or collaborators in planning, implementation, or decision-making. Do not assign Local Communities if the community is only the beneficiary, or if there is no clear involvement as a partner.
+    - Foundation: A non-profit organization that primarily provide financial support—such as grants or donations to other organizations, projects, or causes. Foundations are typically established with an endowment and are not member-based; their main role is funding rather than direct implementation of projects.
+    - Employees: Individuals who work for the reporting company, including full-time, part-time, and contract staff. Select "Employees" when the cooperation or partnership specifically involves the company's workforce as contributors, or collaborators in the initiative, not if merely benefiting or “consulted”.
+    - Government and Regulatory Agencies: Public authorities, national, regional, or local government bodies, ministries, or regulatory authorities playing a role as a partner.
+    - NGOs: Non-Governmental Organization; a non-profit entity independent from government, usually focused on social, environmental, humanitarian, or advocacy work. NGOs typically implement projects, provide services, or advocate for causes directly, and may operate locally, nationally, or internationally.
+SELECTION RULE for business_partner and stakeholder_partner:
+    - Always use only the exact category names listed above.
+    - Do not over-assign "Company" to the business_partner column. Assign "Company" only when the reporting organization itself is formally and actively engaged as an institutional partner, not by default. If this is not explicit in the initiative description, leave the value out.
+    - Do not over-assign “Employees” to the stakeholder_partner column. Only assign “Employees” if there is clear, explicit evidence in the initiative description that employees are actively involved as partners or collaborators, not just as recipients, beneficiaries, or bystanders.
+    - Do not over-assign “NGOs” to the stakeholder_partner column. Only assign “NGOs” if the initiative description provides clear and explicit evidence of an NGO as an active partner or collaborator in the project, not if an NGO is only receiving benefits, mentioned superficially, or referenced in a generic sense.
+    - Include **all** applicable types in each column, if mentioned (separated by commas in alphabetical order).
+    - If none apply to a column, return null for that column.
+    - Do not return any categories not listed for that column. Do not over-assign, invent, or generalize terms.
+
+- stakeholder_beneficiary: List the main beneficiary of the initiative. Choose only one from the following list: Company, Employees, Local Communities, Broader Society 
+You MUST always select ONE AND ONLY ONE beneficiary from this list. Do not invent new categories, combine categories, or use any other term. If more than one could apply, select the single most appropriate stakeholder_beneficiary based on the description.
+Only use the terms provided above for stakeholder_beneficiary. Do not use "Government and Regulatory Agencies" or "Consultancies And Certification Bodies" or "Educational and Research Entities", since it is not one of the allowed options for this column. 
+
+- type_of_cooperation: List all types of cooperation involved in the initiative from the given options. Choose from: Joint Venture, MOU, Knowledge Exchange, Resource Sharing, Co-marketing, Co-creation. Only use the terms provided, do not use any other terms.
+    - Joint Venture: A legally recognized new entity created and jointly owned by two or more partners specifically to undertake the initiative.
+    - MOU: A formal written Memorandum of Understanding signed by two or more parties, outlining their agreement to cooperate on the initiative but not forming a new entity.
+    - Knowledge Exchange: Structured sharing of information, expertise, or best practices between partners with the explicit intent of mutual learning or capacity building.
+    - Resource Sharing: Sharing or pooling of physical, financial, technological, or human resources between partners for the purposes of implementing the initiative.
+    - Co-marketing: Joint marketing, promotion, or communication efforts between partners regarding the initiative or its outcomes.
+    - Co-creation: Collaborative development or joint design of products, services, solutions, or strategies as part of the initiative, with active input from multiple partners.
+SELECTION RULE for type_of_cooperation:   
+    - If multiple types of cooperation are present, list all, separated by commas. 
+    - If the type of cooperation does not match any option in the list, choose the closest one from the type_of_cooperation options. You must always select at least one type of cooperation from the list above. Never return null.
+    - If any allowed type of cooperation (important example: Joint Venture, MOU) is explicitly mentioned in the text, always include it in the output exactly as stated. Do not generalize or substitute with other types. Do not omit "Joint Venture" if it is mentioned in the text.
+    - Important: If the initiative is described as a "Joint Venture" or an "MOU," only include "Joint Venture" or "MOU" as the type of cooperation, and do not include any other types, even if they are also present in the description. These are considered exclusive and should not be combined with other cooperation types.
+    - If the initiative mentions sponsorship, classify it as resource sharing, and Standard Development is not an option for type_of_cooperation..
+    - Arrange type_of_cooperation in strict alphabetical order.
+    
+- name_of_partners: List any explicit or implicit partner names mentioned in the initiative description. 
+    - Be thorough and critical: if any organization, company, institution, or group is mentioned as a collaborator, partner, include their name(s).
+    - Important: Do not include the reporting company's own name as their name of partners (e.g., if the initiative is by JPMORGAN CHASE & CO or Elior Group SA, do not include these as a partner).
+    - Only return null if there are truly no partners mentioned in any form.
+    - Do not omit any partner names that are present, even if they are mentioned briefly.
+    - If multiple partners are mentioned, list all, separated by commas.
+    - If no partner is mentioned at all, return null.
+    - Arrange partner names in strict alphabetical order.
+
+- innovation_and_value_creation: Choose from: Shared Value Creation (co-development for mutual benefit), Standard Development (collaborating to raise, refine, or implement sustainability standards). 
+    - You must always select one of these two options, unless there is absolutely no evidence of either in the description.
+    - If you are unsure, select the most appropriate option based on the information provided.
+    - Do not return null unless there is truly no indication of either shared value creation or standard development.
+
+STRICT ENFORCEMENT RULE (Most Important): Be highly conservative in assigning every category in every field. Assign a value only when there is clear, direct, and explicit evidence for that category in the initiative description. For each field, you must only use the provided options for that column. Never invent, substitute, or categorize using any value that is not in the list of option for that column. 
+
+Capitalization Style Instructions: Important-You must strictly follow these formatting and capitalization rules for every output field.
+- For every output field, return the value as a plain string (not as a list, not inside square brackets, and not inside double quotes).
+- Use Title Case (capitalize the first letter of each main word) for all category values such as partnership_structure, stakeholder_structure, business_partner, stakeholder_partner, stakeholder_beneficiary, type_of_cooperation, and innovation_and_value_creation.
+- Use Proper Case (capitalize only the first letter of each word, as appropriate for names) for organization and partner names in name_of_partners.
+- For organization and partner names, use the exact capitalization as it appears in the initiative description. Do not change, generalize, or apply Title Case to these names.
+- Do not use square brackets, curly braces, or double quotes around the values.
+- Do not return values in lowercase, uppercase, or all caps. Only use Title Case or Proper Case as specified.
+- If there are multiple values in a field of stakeholder_partner, type_of_cooperation, and name_of_partners, arrange them in strict Alphabetical Order and separate them with a comma and a space (e.g., "Association, Local Communities, NGO").
+
+Extract and return the following fields in strict JSON:
+{
+  "partnership_structure": "...",
+  "stakeholder_structure": "...",
+  "business_partner": "...",
+  "stakeholder_partner": "...",
+  "stakeholder_beneficiary": "...",
+  "type_of_cooperation": "...",
+  "name_of_partners": "...",
+  "innovation_and_value_creation": "...",
+  "initiative_duration": "..."
+}
+
+Initiative description:
+"""{description}"""
+
